@@ -16,7 +16,7 @@ async function getBrain(userPrompt) {
                 // Llama 3 is incredibly fast on Groq
                 model: "llama-3.1-8b-instant", 
                 messages: [
-                    { "role": "system", "content": "You are a funny person. Keep your responses short and friendly for WhatsApp." },
+                    { "role": "system", "content": "You are a casual person chatting on WhatsApp. Reply naturally. Use lowercase occasionally. Keep it very short. Do NOT use quotation marks in your response. No formal greetings." },
                     { "role": "user", "content": userPrompt }
                 ]
             })
@@ -28,11 +28,13 @@ async function getBrain(userPrompt) {
             console.error("Doom Bot: Groq AI Error: ", data.error.message);
             return "Error: " + data.error.message;
         }
-        
-        return data.choices[0].message.content; // Groq follows the OpenAI response format
+
+        let aiText = data.choices[0].message.content;
+
+        return aiText.replace(/["']/g, "");
     }catch (error) {
         console.error("Doom Bot: Groq AI Error!", error);
-        return "My circuits are a bit fried right now. HA HA";
+        return "wait what?";
     }
 }
 
@@ -57,13 +59,15 @@ async function handleChatSync() {
     const currentMessage = getLastIncomingMessage();
 
     // reply if there is a new message and its diff from last
-    if(currentMessage && currentMessage !== lastRepliedMessage){
-        console.log("Doom Bot: New message detected: " + currentMessage);
-        
-        lastRepliedMessage = currentMessage; // mark as seen
+    if (currentMessage && currentMessage !== lastRepliedMessage) {
+        lastRepliedMessage = currentMessage; 
+        console.log("Doom Bot: New message detected! Waiting 3s to look human...");
 
-        const groqResponse = await getBrain(`The user said: "${currentMessage}". Write a short, friendly reply.`);
-        await sendMessage(groqResponse);
+        // ADD THE DELAY HERE
+        setTimeout(async () => {
+            const groqResponse = await getBrain(currentMessage);
+            await sendMessage(groqResponse);
+        }, 3000); // 3000ms = 3 seconds
     }
 }
 
