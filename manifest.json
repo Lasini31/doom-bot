@@ -4,10 +4,10 @@
   "version": "1.0",
   "description": "Sends AI-customized messages repeatedly.",
   "permissions": ["storage"],
-  "content_scripts": [
+  "content_scripts": [ 
     {
       "matches": ["https://web.whatsapp.com/*"],
-      "js": ["content.js"]
+      "js": ["config.js", "content.js"]
     }
   ]
 }

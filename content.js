@@ -1,6 +1,6 @@
 console.log("Doom Bot: Extension is loaded and watching WhatsApp!");
 
-const GROQ_API_KEY = config.GROQ_API_KEY;
+const GROQ_API_KEY = CONFIG.GROQ_KEY;
 
 async function getBrain(userPrompt) {
     console.log("Doom Bot: Asking the Groq brain...");
@@ -33,6 +33,37 @@ async function getBrain(userPrompt) {
     }catch (error) {
         console.error("Doom Bot: Groq AI Error!", error);
         return "My circuits are a bit fried right now. HA HA";
+    }
+}
+
+function getLastIncomingMessage() {
+    const main = document.querySelector("#main");
+    if(!main) {
+        return null;
+    }
+
+    const incomingMessages = main.querySelectorAll('.message-in');
+    if(incomingMessages.length === 0) return null;
+    
+    const lastMessage = incomingMessages[incomingMessages.length - 1];
+    const textNode = lastMessage.querySelector('.copyable-text span');
+
+    return textNode ? textNode.innerText : null;
+}
+
+let lastRepliedMessage = "";
+
+async function handleChatSync() {
+    const currentMessage = getLastIncomingMessage();
+
+    // reply if there is a new message and its diff from last
+    if(currentMessage && currentMessage !== lastRepliedMessage){
+        console.log("Doom Bot: New message detected: " + currentMessage);
+        
+        lastRepliedMessage = currentMessage; // mark as seen
+
+        const groqResponse = await getBrain(`The user said: "${currentMessage}". Write a short, friendly reply.`);
+        await sendMessage(groqResponse);
     }
 }
 
@@ -83,23 +114,18 @@ function startAutomation() {
     console.log("Doom Bot: Waiting for you to click a chat...");
 
     // every 1s check if chat it visible
-    const checkInterval = setInterval(() => {
+    const observer = new MutationObserver(() => {
         const main = document.querySelector("#main");
 
         if(main){
-            console.log("Doom Bot: Chat detected! Preparing...");
-            clearInterval(checkInterval);
-            
-            // settling time = 2s
-            setTimeout(async () => {
-                const aiMessage = await getBrain("Write a 1-sentence greeting for a friend.");
-                sendMessage(aiMessage);
-            }, 2000);
+            handleChatSync();
         }
-    }, 1000);
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
 }
 
-// testing smart waiting
+// testing brain
 startAutomation(); 
 
 
