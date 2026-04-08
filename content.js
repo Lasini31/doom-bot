@@ -1,5 +1,41 @@
 console.log("Doom Bot: Extension is loaded and watching WhatsApp!");
 
+const GROQ_API_KEY = config.GROQ_API_KEY;
+
+async function getBrain(userPrompt) {
+    console.log("Doom Bot: Asking the Groq brain...");
+    
+    try {
+        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${GROQ_API_KEY}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                // Llama 3 is incredibly fast on Groq
+                model: "llama-3.1-8b-instant", 
+                messages: [
+                    { "role": "system", "content": "You are a funny person. Keep your responses short and friendly for WhatsApp." },
+                    { "role": "user", "content": userPrompt }
+                ]
+            })
+        });
+
+        const data = await response.json();
+
+        if(data.error){
+            console.error("Doom Bot: Groq AI Error: ", data.error.message);
+            return "Error: " + data.error.message;
+        }
+        
+        return data.choices[0].message.content; // Groq follows the OpenAI response format
+    }catch (error) {
+        console.error("Doom Bot: Groq AI Error!", error);
+        return "My circuits are a bit fried right now. HA HA";
+    }
+}
+
 async function sendMessage(text) {
     // 1.finding input box
     const main = document.querySelector("#main");
@@ -55,9 +91,9 @@ function startAutomation() {
             clearInterval(checkInterval);
             
             // settling time = 2s
-            setTimeout(() => {
-                console.log("Doom Bot: Successfully detected! Sending message...");
-                sendMessage("Hello from Doom Bot - Extention 001!");
+            setTimeout(async () => {
+                const aiMessage = await getBrain("Write a 1-sentence greeting for a friend.");
+                sendMessage(aiMessage);
             }, 2000);
         }
     }, 1000);
@@ -65,3 +101,6 @@ function startAutomation() {
 
 // testing smart waiting
 startAutomation(); 
+
+
+
