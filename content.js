@@ -44,13 +44,23 @@ function getLastIncomingMessage() {
         return null;
     }
 
-    const incomingMessages = main.querySelectorAll('.message-in');
-    if(incomingMessages.length === 0) return null;
+    const messages = main.querySelectorAll('.message-in, .message-out');
+    const history = [];
     
-    const lastMessage = incomingMessages[incomingMessages.length - 1];
-    const textNode = lastMessage.querySelector('.copyable-text span');
+    const recentMessages = Array.from(messages).slice(-5);
 
-    return textNode ? textNode.innerText : null;
+    recentMessages.forEach(msg => {
+        const textNode = msg.querySelector('.copyable-text span');
+        if(textNode) {
+            const role = msg.classList.contains('message-in') ? "user" : "assistant";
+            history.push({ 
+                role: role, 
+                content: textNode.innerText.trim() 
+            });
+        }
+    });
+
+    return history;
 }
 
 let lastRepliedMessage = "";
