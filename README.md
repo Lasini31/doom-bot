@@ -1,44 +1,75 @@
 # 🤖 Doom Bot - AI WhatsApp Extension
 
-A lightweight Chrome Extension that transforms WhatsApp Web into an AI-powered assistant. Doom Bot listens for incoming messages, processes them through a "brain" (Groq AI), and responds with human-like delays.
-
-## 🚀 Features
-- **Real-time Injection**: Runs directly within the WhatsApp Web DOM.
-- **AI Integration**: Powered by Groq (Llama 3.1) for near-instant responses.
-- **Human-like Behavior**: Includes a 3-second response delay and casual formatting (no quotes, natural casing).
-- **Multi-chat Support**: Detects when you switch conversations and resets context.
-
-## 🛠️ Tech Stack
-- **JavaScript (ES6+)**: DOM Manipulation & Asynchronous Fetch API.
-- **Chrome Extension Manifest V3**: The latest standard for browser extensions.
-- **Groq Cloud API**: Using Llama 3 models for high-speed inference.
-
-## 📦 Installation
-1. Clone this repository.
-2. Create a `config.js` file and add your API key:
-   ```javascript
-   var CONFIG = { GROQ_KEY: "your_key_here" };
-
-
-
+A high-performance Chrome Extension that transforms WhatsApp Web into an intelligent, context-aware conversational agent. **Doom Bot** bridges the gap between the static browser DOM and the high-speed **Groq Llama 3** inference engine.
 
 ---
 
-### Part 2: The "Master Prompt" for Version 2
+## 🚀 Evolution: V1 to V2
 
-**The Prompt:**
-> "I want to upgrade **Doom Bot**, a Chrome Extension for WhatsApp Web. 
+### **V1: The Foundation**
+* **Real-time Injection**: Seamlessly runs within the WhatsApp Web DOM via Content Scripts.
+* **Groq Integration**: Powered by Llama 3.1 for near-instant response generation.
+* **Basic Automation**: 3-second static delay and `document.execCommand` typing simulation.
+* **Manifest V3**: Built on the latest Chrome extension standards for better security and performance.
+
+### **V2: The Intelligence Upgrade (Current)**
+* **Conversation Memory**: No longer a "one-shot" bot. V2 scrapes the last 5–10 messages from the DOM to maintain context, allowing for follow-up questions and sarcasm detection.
+* **UoM Persona**: Tailored for a **female engineering student at the University of Moratuwa (UoM)**.
+    * *Natural Slang:* Naturally integrates terms like "ane," "elakiri," and "shape."
+    * *Anti-Bot Tone:* Explicitly avoids "machan/ban/ado," lowercase-only formatting, and no robotic formalisms.
+* **Smart Human Simulation**:
+    * *Dynamic Delays:* Reading and typing time now scales mathematically based on the character count of the AI's response.
+    * *Active "Typing..." Status:* Dispatches trusted keyboard events to trigger the "Typing..." indicator on the recipient's phone.
+* **Loop Prevention**: Strictly validates message roles (`message-in`) to ensure the bot never replies to its own messages.
+
+---
+
+## 🛠️ Tech Stack
+* **Engine**: [Groq Cloud API](https://groq.com/) (Llama 3.1 - 8b Instant).
+* **Runtime**: JavaScript ES6+ (DOM MutationObservers).
+* **Sanitization**: Regex-based filters to remove quotation marks and formal punctuation.
+* **Config**: Modular `config.js` for local API key management.
+
+---
+
+## 📦 Installation
+1.  **Clone** this repository to your local machine.
+2.  **API Key Setup**: Create a `config.js` file in the root directory:
+    ```javascript
+    var CONFIG = { 
+        GROQ_KEY: "your_groq_api_key_here" 
+    };
+    ```
+3.  **Load in Chrome**:
+    * Navigate to `chrome://extensions/`.
+    * Enable **Developer Mode** (top right).
+    * Click **Load Unpacked** and select the project folder.
+4.  **Launch**: Open [WhatsApp Web](https://web.whatsapp.com) and click on any chat.
+
+---
+
+## 🔮 Roadmap & V3 Master Prompt
+
+V3 will shift from a "hidden script" to a fully-fledged "application" with an integrated UI.
+
+### **The V3 Master Prompt**
+Copy and paste this into your LLM to begin the next development phase:
+
+> "I am upgrading **Doom Bot**, a WhatsApp Web AI extension (Manifest V3). 
+> 
+> **Current state:** It has conversation history (last 10 messages), a UoM female student persona, dynamic typing delays, and uses the Groq API.
 >
-> **Current Architecture:**
-> - **Manifest V3** using a content script (`content.js`) and a global config (`config.js`).
-> - It uses a **MutationObserver** to detect new `.message-in` elements.
-> - It has a **3-second delay** and uses `document.execCommand('insertText')` to type.
-> - The brain is **Groq AI (Llama 3.1)** via the Fetch API.
+> **Goal for V3:** > 1. **UI Injection**: Inject a 'Power' toggle button and a 'Status' indicator (Bot Active/Idle) into the WhatsApp header (near the search/menu icons).
+> 2. **Group Chat Awareness**: Modify the scraper to detect the sender's name in group chats so the AI can distinguish between multiple people.
+> 3. **Smart Triggering**: Implement a 'Trigger Keyword' (e.g., only reply if the message contains 'doom' or if it is a DM).
+> 4. **Safety Switch**: Add an emergency 'Stop' hotkey to immediately kill the automation loop.
 >
-> **Current Limitations:**
-> 1. It only reads the *last* message, so it lacks 'short-term memory' of the whole conversation.
-> 2. It struggles if the UI classes change.
-> 3. It's not yet intelligent enough to know when *not* to reply.
->
-> **Goals for V2:**
-> Improve the intelligence by implementing 'Conversation History' (sending the last 5 messages to the AI instead of just 1) and adding a UI toggle button to the WhatsApp header to turn the bot ON/OFF."
+> Provide the steps to inject the CSS/HTML into the WhatsApp DOM and handle the state management for the ON/OFF toggle."
+
+---
+
+## ⚠️ Disclaimer
+This project is for educational purposes only. Automating WhatsApp can violate their Terms of Service. Use responsibly and keep rate limits human-like to avoid account flagging.
+
+---
+*Developed by El.*
