@@ -2,7 +2,7 @@ console.log("Doom Bot: Extension is loaded and watching WhatsApp!");
 
 const GROQ_API_KEY = CONFIG.GROQ_KEY;
 
-async function getBrain(userPrompt) {
+async function getBrain(history) {
     console.log("Doom Bot: Asking the Groq brain...");
     
     try {
@@ -16,8 +16,12 @@ async function getBrain(userPrompt) {
                 // Llama 3 is incredibly fast on Groq
                 model: "llama-3.1-8b-instant", 
                 messages: [
-                    { "role": "system", "content": "You are a casual person chatting on WhatsApp. Reply naturally. Use lowercase occasionally. Keep it very short. Do NOT use quotation marks in your response. No formal greetings." },
-                    { "role": "user", "content": userPrompt }
+                    { 
+                        "role": "system", 
+                        "content": "You are a casual person chatting on WhatsApp. Reply naturally. Use lowercase occasionally. Keep it very short. Do NOT use quotation marks in your response. No formal greetings." 
+                    },
+                    // spreading the history array here
+                    ...history
                 ]
             })
         });
@@ -66,18 +70,24 @@ function getLastIncomingMessage() {
 let lastRepliedMessage = "";
 
 async function handleChatSync() {
-    const currentMessage = getLastIncomingMessage();
+    const history = getLastIncomingMessage();
 
-    // reply if there is a new message and its diff from last
-    if (currentMessage && currentMessage !== lastRepliedMessage) {
-        lastRepliedMessage = currentMessage; 
-        console.log("Doom Bot: New message detected! Waiting 3s to look human...");
+    if (history && history.length > 0) {
+        const lastMessage = history[history.length - 1];
 
-        // ADD THE DELAY HERE
-        setTimeout(async () => {
-            const groqResponse = await getBrain(currentMessage);
-            await sendMessage(groqResponse);
-        }, 3000); // 3000ms = 3 seconds
+        // ONLY reply if the last message was from the USER
+        // and if we haven't already replied to this exact text
+        if (lastMessage.role === "user" && lastMessage.content !== lastRepliedMessage) {
+            
+            lastRepliedMessage = lastMessage.content; 
+            console.log("Doom Bot: New user message! Thinking...");
+
+            setTimeout(async () => {
+                // Pass the whole history to the brain
+                const groqResponse = await getBrain(history);
+                await sendMessage(groqResponse);
+            }, 3000); 
+        }
     }
 }
 
