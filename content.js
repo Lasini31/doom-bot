@@ -42,6 +42,29 @@ async function getBrain(history) {
     }
 }
 
+// 'power' here represents the number of seconds to simulate typing
+function simulateTyping(power = 3) {
+    const main = document.querySelector("#main");
+    const textarea = main?.querySelector('div[contenteditable="true"][role="textbox"]');
+
+    if (textarea) {
+        textarea.focus();
+        
+        // Start an interval that "taps" the keyboard every 500ms
+        // to keep the "Typing..." status alive for the duration of 'power'
+        const typingInterval = setInterval(() => {
+            const event = new KeyboardEvent('keydown', { bubbles: true });
+            textarea.dispatchEvent(event);
+        }, 500);
+
+        // Stop the typing indicator after the 'power' duration (in seconds)
+        setTimeout(() => {
+            clearInterval(typingInterval);
+            console.log("Doom Bot: Finished typing simulation.");
+        }, power * 1000);
+    }
+}
+
 function getLastIncomingMessage() {
     const main = document.querySelector("#main");
     if(!main) {
@@ -81,6 +104,8 @@ async function handleChatSync() {
             
             lastRepliedMessage = lastMessage.content; 
             console.log("Doom Bot: New user message! Thinking...");
+
+            simulateTyping();
 
             setTimeout(async () => {
                 // Pass the whole history to the brain
